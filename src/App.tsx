@@ -10,13 +10,27 @@ import ToolsSection from './components/tools/ToolsSection';
 import BlogSection from './components/blog/BlogSection';
 import FooterSection from './components/layout/Footer/FooterSection';
 import AuthModal from './components/auth/AuthModal';
+import ToolsPage from './components/tools/ToolsPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
+
   if (loading) return <div>Loading...</div>;
-  if (!user) return <Navigate to="/" />;
+  if (!user) {
+    // Redirect to the login page with the current location passed as state
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
   return <>{children}</>;
 };
+
+const HomePage = () => (
+  <>
+    <Hero />
+    <Features />
+    <ToolsSection />
+    <BlogSection />
+  </>
+);
 
 function App() {
   return (
@@ -26,8 +40,13 @@ function App() {
           <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
             <Header />
             <Routes>
-              <Route path="/" element={<Hero />} />
-              <Route path="/register" element={<AuthModal isOpen={true} onClose={() => {}} />} />
+              <Route path="/" element={<HomePage />} />
+              {/* Tools page now accessible without authentication */}
+              <Route path="/tools" element={<ToolsPage />} />
+              <Route 
+                path="/register" 
+                element={<AuthModal isOpen={true} onClose={() => {}} />} 
+              />
               <Route
                 path="/protected"
                 element={
@@ -37,9 +56,6 @@ function App() {
                 }
               />
             </Routes>
-            <Features />
-            <ToolsSection />
-            <BlogSection />
             <FooterSection />
             <Toaster position="top-right" />
           </div>

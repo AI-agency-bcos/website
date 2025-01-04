@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.47.10",
+    "@vercel/speed-insights": "^1.1.0",
+    "cors": "^2.8.5",
     "git": "^0.1.5",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",

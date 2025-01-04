@@ -163,10 +163,10 @@ const SolutionsDropdown: React.FC = () => {
       icon: Star,
       items: [
         {
-          title: 'Digital Transformation',
-          description: 'Transform your business with digital solutions',
+          title: 'Blog Generatore',
+          description: 'Automate blog creation',
           icon: TrendingUp,
-          link: '/solutions/digital-transformation',
+          link: '/tools',
         },
         {
           title: 'Process Automation',

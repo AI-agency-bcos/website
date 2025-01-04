@@ -1,18 +1,15 @@
 import { useState, useEffect } from 'react';
 import Navigation from './Navigation';
-import MobileMenu from './MobileMenu';
 import ThemeToggle from './ThemeToggle';
 import { Bot, User } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
 import AuthModal from '../../auth/AuthModal';
-import logo from './logo.png';
+import logo from './logo.svg';
 
 const Header = () => {
-  const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { theme } = useTheme();
+  useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -25,10 +22,6 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleLogin = () => {
-    setIsAuthModalOpen(true);
-  };
-
   return (
     <header className={`fixed w-full z-50 transition-all duration-300 ${
       isScrolled ? 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-md' : 'bg-transparent'
@@ -40,7 +33,7 @@ const Header = () => {
             <img
               src={logo}
               alt="AI Agency Logo"
-              className="w-40 h-30 transition-all duration-300"
+              className="w-40 h-30 transition-all duration-300 dark:text-gray-900"
             />
           </div>
 
@@ -55,9 +48,9 @@ const Header = () => {
                   opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 
                   border border-gray-200 dark:border-gray-700">
                   <div className="p-6 space-y-4">
-                    <div className="space-y-2">
+                    <div className="flex-col justify-items-center space-y-2">
                       <p className="text-sm text-gray-500 dark:text-gray-400">Signed in as</p>
-                      <p className="text-gray-700 dark:text-gray-300 font-medium break-all">
+                      <p className="text-gray-700 dark:text-gray-300 font-medium">
                         {user.email}
                       </p>
                     </div>
@@ -77,9 +70,9 @@ const Header = () => {
               <button
                 className="bg-[#91be3f] hover:bg-[#a1ce4f] text-white px-6 py-2 rounded-full 
                   font-semibold transition-all duration-300"
-                onClick={handleLogin}
+                onClick={() => setIsAuthModalOpen(true)}
               >
-                Register
+               Register
               </button>
             )}
           </div>

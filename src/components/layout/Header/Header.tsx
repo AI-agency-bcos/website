@@ -6,6 +6,7 @@ import AuthModal from '../../auth/AuthModal';
 import logo from '../logo.svg';
 import MobileMenu from './MobileMenu';
 import ThemeToggle from './ThemeToggle';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for logo click
 
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -13,6 +14,7 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const navigate = useNavigate(); // For logo click navigation
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,11 +24,20 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Disable scrolling when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }, [isMobileMenuOpen]);
+
   const navItems = [
     { label: 'Home', href: '/' },
     { label: 'AI Tools', href: '/tools' },
     { label: 'Blog', href: '/blog' },
-    { label: 'Contact', href: '/contact' }, // Added Contact Page Link
+    { label: 'Contact', href: '/contact' },
   ];
 
   return (
@@ -41,12 +52,13 @@ const Header = () => {
             <img
               src={logo}
               alt="AI Agency Logo"
-              className="w-40 h-30 transition-all duration-300 dark:text-gray-900"
+              className="w-40 h-30 transition-all duration-300 dark:text-gray-900 cursor-pointer"
+              onClick={() => navigate('/')} // Redirect to home on click
             />
 
             {/* Mobile Menu Toggler */}
             <button 
-              className="md:hidden"
+              className="md:hidden ml-auto" // Move toggler to the right
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               <div className={`w-6 h-6 flex flex-col justify-around ${

@@ -10,9 +10,8 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
   const navItems = [
     { label: 'Home', href: '/' },
     { label: 'AI Tools', href: '/tools' },
-    { label: 'Solutions', href: '#solutions' },
     { label: 'Blog', href: '/blog' },
-    { label: 'Contact', href: '#contact' },
+    { label: 'Contact', href: '/contact' },
   ];
 
   return (

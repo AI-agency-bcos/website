@@ -14,11 +14,14 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
   return (
     <article className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden 
       hover:shadow-xl transition-all duration-300">
-      <img 
-        src={post.image} 
-        alt={post.title}
-        className="w-full h-48 object-cover"
-      />
+      {/* Image with fixed aspect ratio */}
+      <div className="w-full aspect-[4/3] overflow-hidden">
+        <img 
+          src={post.image} 
+          alt={post.title}
+          className="w-full h-full object-cover"
+        />
+      </div>
       <div className="p-6">
         <div className="flex items-center mb-4">
           <span className="text-sm text-[#91be3f]">{post.category}</span>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -11,6 +11,7 @@ import BlogSection from './components/blog/BlogSection';
 import FooterSection from './components/layout/Footer/FooterSection';
 import AuthModal from './components/auth/AuthModal';
 import ToolsPage from './components/tools/ToolsPage';
+import BlogPage from './components/blog/blogPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
@@ -33,6 +34,11 @@ const HomePage = () => (
 );
 
 function App() {
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+
+  const openAuthModal = () => setAuthModalOpen(true);
+  const closeAuthModal = () => setAuthModalOpen(false);
+
   return (
     <ThemeProvider>
       <Router>
@@ -43,9 +49,22 @@ function App() {
               <Route path="/" element={<HomePage />} />
               {/* Tools page now accessible without authentication */}
               <Route path="/tools" element={<ToolsPage />} />
-              <Route 
-                path="/register" 
-                element={<AuthModal isOpen={true} onClose={() => {}} />} 
+              <Route path="/blog" element={<BlogPage />} />
+              <Route
+                path="/register"
+                element={
+                  <>
+                    <AuthModal isOpen={authModalOpen} onClose={closeAuthModal} />
+                    <div className="flex justify-center mt-8">
+                      <button
+                        onClick={openAuthModal}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700"
+                      >
+                        Open Registration
+                      </button>
+                    </div>
+                  </>
+                }
               />
               <Route
                 path="/protected"

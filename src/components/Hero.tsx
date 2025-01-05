@@ -4,7 +4,6 @@ import TypewriterEffect from './TypewriterEffect';
 import { useNavigate } from 'react-router-dom';
 import AuthModal from './auth/AuthModal';
 import { useAuth } from '../contexts/AuthContext';
-
 import { ReactNode } from 'react';
 
 const GridSection = ({ children, className = '', delay = 0 }: { children: ReactNode, className?: string, delay?: number }) => (
@@ -26,6 +25,29 @@ const Hero = () => {
     response: 0
   });
 
+  // Grid configuration based on screen size
+  const [gridConfig, setGridConfig] = useState({
+    cols: 12,
+    rows: 12
+  });
+
+  useEffect(() => {
+    const updateGridConfig = () => {
+      if (window.innerWidth < 640) { // sm breakpoint
+        setGridConfig({ cols: 6, rows: 24 });
+      } else if (window.innerWidth < 1024) { // md breakpoint
+        setGridConfig({ cols: 8, rows: 16 });
+      } else {
+        setGridConfig({ cols: 12, rows: 12 });
+      }
+    };
+
+    updateGridConfig();
+    window.addEventListener('resize', updateGridConfig);
+    return () => window.removeEventListener('resize', updateGridConfig);
+  }, []);
+
+  // Animation effect for counts
   useEffect(() => {
     let startTime: number;
     const duration = 2000;
@@ -63,48 +85,49 @@ const Hero = () => {
     <div className="relative min-h-screen bg-gray-900 text-white overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-[#91be3f]/20 via-transparent to-blue-500/20" />
       
-      <div className="absolute inset-0 grid grid-cols-12 grid-rows-12">
-        {[...Array(144)].map((_, i) => (
+      {/* Responsive grid container */}
+      <div className={`absolute inset-0 grid grid-cols-${gridConfig.cols} grid-rows-${gridConfig.rows}`}>
+        {[...Array(gridConfig.cols * gridConfig.rows)].map((_, i) => (
           <GridSection 
             key={i}
             delay={Math.random() * 2}
-            className="animate-pulse-subtle" children={undefined}          >
-            {/* Add any children content here if needed */}
-          </GridSection>
+            className="animate-pulse-subtle" children={undefined}          />
         ))}
         
-        {[...Array(5)].map((_, i) => (
+        {/* Responsive vertical lines */}
+        {[...Array(Math.max(3, Math.floor(gridConfig.cols / 2)))].map((_, i) => (
           <div
             key={`vline-${i}`}
             className="absolute h-full w-px bg-gradient-to-b from-transparent via-[#91be3f]/40 to-transparent animate-slide-down"
             style={{
-              left: `${20 + i * 20}%`,
+              left: `${(100 / (Math.floor(gridConfig.cols / 2) + 1)) * (i + 1)}%`,
               animationDelay: `${i * 1.5}s`
             }}
           />
         ))}
         
-        {[...Array(5)].map((_, i) => (
+        {/* Responsive horizontal lines */}
+        {[...Array(Math.max(3, Math.floor(gridConfig.rows / 2)))].map((_, i) => (
           <div
             key={`hline-${i}`}
             className="absolute w-full h-px bg-gradient-to-r from-transparent via-[#91be3f]/40 to-transparent animate-slide-right"
             style={{
-              top: `${20 + i * 20}%`,
+              top: `${(100 / (Math.floor(gridConfig.rows / 2) + 1)) * (i + 1)}%`,
               animationDelay: `${i * 1.5}s`
             }}
           />
         ))}
       </div>
 
-      <div className="relative container mx-auto px-4 py-20 flex min-h-screen items-center justify-center z-10">
-        <div className="flex flex-col items-center text-center space-y-8 max-w-4xl">
-          <Bot className="w-16 h-16 text-[#91be3f] animate-float" />
+      <div className="relative container mx-auto px-4 py-12 md:py-20 flex min-h-screen items-center justify-center z-10">
+        <div className="flex flex-col items-center text-center space-y-6 md:space-y-8 max-w-4xl">
+          <Bot className="w-12 h-12 md:w-16 md:h-16 text-[#91be3f] animate-float" />
           
-          <h1 className="text-4xl md:text-6xl font-bold font-montserrat bg-clip-text text-transparent bg-gradient-to-r from-[#91be3f] to-blue-500">
+          <h1 className="text-3xl md:text-6xl font-bold font-montserrat bg-clip-text text-transparent bg-gradient-to-r from-[#91be3f] to-blue-500">
             <TypewriterEffect text="Transforming Business Through AI Innovation" delay={50} />
           </h1>
           
-          <p className="text-xl md:text-2xl max-w-2xl text-gray-300 font-opensans">
+          <p className="text-lg md:text-2xl max-w-2xl text-gray-300 font-opensans px-4">
             Empowering enterprises with cutting-edge AI solutions that drive growth, 
             efficiency, and innovation.
           </p>
@@ -112,25 +135,25 @@ const Hero = () => {
           <button
             type="button"
             onClick={user ? () => navigate('/services') : () => setIsAuthModalOpen(true)}
-            className="group bg-[#91be3f] hover:bg-[#a1ce4f] text-white px-8 py-4 rounded-full 
+            className="group bg-[#91be3f] hover:bg-[#a1ce4f] text-white px-6 md:px-8 py-3 md:py-4 rounded-full 
               font-semibold transition-all duration-300 flex items-center space-x-2 
               hover:shadow-lg hover:shadow-[#91be3f]/25 active:scale-95"
           >
             <span>{user ? 'Explore Services' : 'Get Started'}</span>
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
           </button>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mt-8 md:mt-16 w-full px-4">
             {metrics.map(({ icon: Icon, label, value }) => (
               <div
                 key={label}
-                className="bg-white/5 backdrop-blur-lg rounded-xl p-6 
+                className="bg-white/5 backdrop-blur-lg rounded-xl p-4 md:p-6 
                   transform hover:scale-105 transition-all duration-300
                   hover:shadow-xl hover:shadow-[#91be3f]/10 border border-gray-800"
               >
-                <Icon className="w-8 h-8 text-[#91be3f] mx-auto" />
-                <h3 className="text-3xl font-bold mt-4">{value}</h3>
-                <p className="text-gray-400">{label}</p>
+                <Icon className="w-6 h-6 md:w-8 md:h-8 text-[#91be3f] mx-auto" />
+                <h3 className="text-2xl md:text-3xl font-bold mt-3 md:mt-4">{value}</h3>
+                <p className="text-sm md:text-base text-gray-400">{label}</p>
               </div>
             ))}
           </div>

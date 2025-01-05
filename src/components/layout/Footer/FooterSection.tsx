@@ -1,8 +1,9 @@
 import React from 'react';
-import { Bot, Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone } from 'lucide-react';
 import FooterNavigation from './FooterNavigation';
 import NewsletterForm from './NewsletterForm';
 import SocialLinks from './SocialLinks';
+import logo from '../logo.svg'; // Import the logo.svg file
 
 const FooterSection = () => {
   return (
@@ -13,7 +14,7 @@ const FooterSection = () => {
           {/* Company Info */}
           <div>
             <div className="flex items-center space-x-2 mb-6">
-              <Bot className="w-8 h-8 text-[#91be3f]" />
+              <img src={logo} alt="AI Agency Logo" className="w-10 h-10" /> {/* Use the logo.svg */}
               <span className="font-montserrat font-bold text-xl">AI Agency</span>
             </div>
             <p className="text-gray-400 mb-6">
@@ -28,10 +29,6 @@ const FooterSection = () => {
               <div className="flex items-center space-x-3 text-gray-400">
                 <Phone className="w-5 h-5" />
                 <span>+1 (555) 123-4567</span>
-              </div>
-              <div className="flex items-center space-x-3 text-gray-400">
-                <MapPin className="w-5 h-5" />
-                <span>123 AI Street, Tech City, TC 12345</span>
               </div>
             </div>
           </div>

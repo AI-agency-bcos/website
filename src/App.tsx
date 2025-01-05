@@ -12,6 +12,7 @@ import FooterSection from './components/layout/Footer/FooterSection';
 import AuthModal from './components/auth/AuthModal';
 import ToolsPage from './components/tools/ToolsPage';
 import BlogPage from './components/blog/blogPage';
+import ContactPage from './components/layout/ContactPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
@@ -50,6 +51,7 @@ function App() {
               {/* Tools page now accessible without authentication */}
               <Route path="/tools" element={<ToolsPage />} />
               <Route path="/blog" element={<BlogPage />} />
+              <Route path="/contact" element={<ContactPage />} /> {/* Add the Contact Page route */}
               <Route
                 path="/register"
                 element={

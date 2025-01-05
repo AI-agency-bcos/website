@@ -45,10 +45,9 @@ const Navigation: React.FC<NavigationProps> = ({ isScrolled }) => {
 
   const navItems = [
     { label: 'Home', href: '/' },
-    { label: 'AI Tools', href: '/#tools' },
-    { label: 'Solutions', href: '/#solutions' },
+    { label: 'AI Tools', href: '/tools' },
     { label: 'Blog', href: '/blog' },
-    { label: 'Contact', href: '/#contact' },
+    { label: 'Contact', href: '/contact' },
   ];
 
   return (

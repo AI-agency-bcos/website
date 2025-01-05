@@ -14,22 +14,32 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [scrollPosition, setScrollPosition] = useState(0); // Track scroll position
   const navigate = useNavigate(); // For logo click navigation
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
+      setScrollPosition(window.scrollY); // Update scroll position
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Disable scrolling when mobile menu is open
+  // Disable scrolling and save scroll position when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
+      // Save the current scroll position
+      setScrollPosition(window.scrollY);
+      // Disable scrolling
       document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollPosition}px`; // Offset for fixed positioning
     } else {
+      // Re-enable scrolling and restore scroll position
       document.body.style.overflow = 'auto';
+      document.body.style.position = 'static';
+      window.scrollTo(0, scrollPosition); // Restore scroll position
     }
   }, [isMobileMenuOpen]);
 
@@ -42,7 +52,7 @@ const Header = () => {
 
   return (
     <header className={`fixed w-full z-50 transition-all duration-300 ${
-      isScrolled ? 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-md' : 'bg-transparent'
+      isScrolled || isMobileMenuOpen ? 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-md' : 'bg-transparent'
     }`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
@@ -55,21 +65,21 @@ const Header = () => {
               className="w-40 h-30 transition-all duration-300 dark:text-gray-900 cursor-pointer"
               onClick={() => navigate('/')} // Redirect to home on click
             />
-
-            {/* Mobile Menu Toggler */}
-            <button 
-              className="md:hidden ml-auto" // Move toggler to the right
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              <div className={`w-6 h-6 flex flex-col justify-around ${
-                isScrolled ? 'text-[#253b74] dark:text-gray-300' : 'text-white'
-              }`}>
-                <span className="w-full h-0.5 bg-current transition-all duration-300" />
-                <span className="w-full h-0.5 bg-current transition-all duration-300" />
-                <span className="w-full h-0.5 bg-current transition-all duration-300" />
-              </div>
-            </button>
           </div>
+
+          {/* Mobile Menu Toggler */}
+          <button 
+            className="md:hidden" // Ensure this is visible only on mobile
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            <div className={`w-6 h-6 flex flex-col justify-around ${
+              isScrolled || isMobileMenuOpen ? 'text-[#253b74] dark:text-gray-300' : 'text-white'
+            }`}>
+              <span className="w-full h-0.5 bg-current transition-all duration-300" />
+              <span className="w-full h-0.5 bg-current transition-all duration-300" />
+              <span className="w-full h-0.5 bg-current transition-all duration-300" />
+            </div>
+          </button>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
@@ -79,7 +89,7 @@ const Header = () => {
                   key={label}
                   href={href}
                   className={`text-lg font-medium transition-colors duration-300 ${
-                    isScrolled ? 'text-gray-800 dark:text-gray-300' : 'text-white dark:text-gray-300'
+                    isScrolled || isMobileMenuOpen ? 'text-gray-800 dark:text-gray-300' : 'text-white dark:text-gray-300'
                   } hover:text-[#91be3f] dark:hover:text-[#91be3f]`}
                 >
                   {label}

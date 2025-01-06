@@ -12,10 +12,11 @@ const TypewriterEffect: React.FC<TypewriterEffectProps> = ({ text, delay }) => {
   useEffect(() => {
     if (currentIndex < text.length) {
       const timeout = setTimeout(() => {
-        setDisplayText(prev => prev + text[currentIndex]);
-        setCurrentIndex(prev => prev + 1);
+        setDisplayText((prev) => prev + text[currentIndex]);
+        setCurrentIndex((prev) => prev + 1);
       }, delay);
 
+      // Cleanup the timeout when the component unmounts or dependencies change
       return () => clearTimeout(timeout);
     }
   }, [currentIndex, delay, text]);
@@ -23,9 +24,7 @@ const TypewriterEffect: React.FC<TypewriterEffectProps> = ({ text, delay }) => {
   return (
     <span>
       {displayText}
-      {currentIndex < text.length && (
-        <span className="animate-pulse">|</span>
-      )}
+      {currentIndex < text.length && <span className="cursor">|</span>}
     </span>
   );
 };

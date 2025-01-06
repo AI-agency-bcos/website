@@ -1,25 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Toaster } from 'react-hot-toast';
+import LoadingWrapper from './components/LoadingWrapper';
 import Header from './components/layout/Header/Header';
 import Hero from './components/Hero';
 import Features from './components/Features';
-import ToolsSection from './components/tools/ToolsSection';
-import BlogSection from './components/blog/BlogSection';
+import ToolsAndBlog from './components/section2';
 import FooterSection from './components/layout/Footer/FooterSection';
 import AuthModal from './components/auth/AuthModal';
-import ToolsPage from './components/tools/ToolsPage';
-import BlogPage from './components/blog/blogPage';
-import ContactPage from './components/layout/ContactPage';
+import LoadingScreen from './components/LoadingScreen';
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+// Lazy load pages for code splitting
+const ToolsPage = React.lazy(() => import('./components/tools/ToolsPage'));
+const BlogPage = React.lazy(() => import('./components/blog/blogPage'));
+const ContactPage = React.lazy(() => import('./components/layout/ContactPage'));
+
+import { ReactNode } from 'react';
+
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { user, loading } = useAuth();
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <LoadingScreen />;
   if (!user) {
-    // Redirect to the login page with the current location passed as state
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
   return <>{children}</>;
@@ -29,16 +33,12 @@ const HomePage = () => (
   <>
     <Hero />
     <Features />
-    <ToolsSection />
-    <BlogSection />
+    <ToolsAndBlog />
   </>
 );
 
 function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
-
-  const openAuthModal = () => setAuthModalOpen(true);
-  const closeAuthModal = () => setAuthModalOpen(false);
 
   return (
     <ThemeProvider>
@@ -46,37 +46,40 @@ function App() {
         <AuthProvider>
           <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
             <Header />
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              {/* Tools page now accessible without authentication */}
-              <Route path="/tools" element={<ToolsPage />} />
-              <Route path="/blog" element={<BlogPage />} />
-              <Route path="/contact" element={<ContactPage />} /> {/* Add the Contact Page route */}
-              <Route
-                path="/register"
-                element={
-                  <>
-                    <AuthModal isOpen={authModalOpen} onClose={closeAuthModal} />
-                    <div className="flex justify-center mt-8">
-                      <button
-                        onClick={openAuthModal}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700"
-                      >
-                        Open Registration
-                      </button>
-                    </div>
-                  </>
-                }
-              />
-              <Route
-                path="/protected"
-                element={
-                  <ProtectedRoute>
-                    <div>Protected Content</div>
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
+            <Suspense fallback={<LoadingScreen />}>
+              <Routes>
+                <Route path="/" element={<LoadingWrapper><HomePage /></LoadingWrapper>} />
+                <Route path="/tools" element={<LoadingWrapper><ToolsPage /></LoadingWrapper>} />
+                <Route path="/blog" element={<LoadingWrapper><BlogPage /></LoadingWrapper>} />
+                <Route path="/contact" element={<LoadingWrapper><ContactPage /></LoadingWrapper>} />
+                <Route
+                  path="/register"
+                  element={
+                    <LoadingWrapper>
+                      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+                      <div className="flex justify-center mt-8">
+                        <button
+                          onClick={() => setAuthModalOpen(true)}
+                          className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700"
+                        >
+                          Open Registration
+                        </button>
+                      </div>
+                    </LoadingWrapper>
+                  }
+                />
+                <Route
+                  path="/protected"
+                  element={
+                    <ProtectedRoute>
+                      <LoadingWrapper>
+                        <div>Protected Content</div>
+                      </LoadingWrapper>
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </Suspense>
             <FooterSection />
             <Toaster position="top-right" />
           </div>

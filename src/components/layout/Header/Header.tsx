@@ -4,42 +4,46 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
 import AuthModal from '../../auth/AuthModal';
 import logo from '../logo.svg';
+import logo1 from '../logo1.png';
 import MobileMenu from './MobileMenu';
 import ThemeToggle from './ThemeToggle';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for logo click
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Header = () => {
   const { user, signOut } = useAuth();
-  useTheme();
+  const { theme } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [scrollPosition, setScrollPosition] = useState(0); // Track scroll position
-  const navigate = useNavigate(); // For logo click navigation
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [logoSrc, setLogoSrc] = useState(logo);
+
+  // Set dark mode as default when component mounts
+  useEffect(() => {
+    document.body.classList.add('dark');
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
-      setScrollPosition(window.scrollY); // Update scroll position
+      setScrollPosition(window.scrollY);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Disable scrolling and save scroll position when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
-      // Save the current scroll position
       setScrollPosition(window.scrollY);
-      // Disable scrolling
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollPosition}px`; // Offset for fixed positioning
+      document.body.style.top = `-${scrollPosition}px`;
     } else {
-      // Re-enable scrolling and restore scroll position
       document.body.style.overflow = 'auto';
       document.body.style.position = 'static';
-      window.scrollTo(0, scrollPosition); // Restore scroll position
+      window.scrollTo(0, scrollPosition);
     }
   }, [isMobileMenuOpen]);
 
@@ -50,26 +54,51 @@ const Header = () => {
     { label: 'Contact', href: '/contact' },
   ];
 
+  const isHomePage = location.pathname === '/';
+  useEffect(() => {
+    if (!isHomePage) {
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+    }
+  }, [isHomePage]);
+
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+      setScrollPosition(window.scrollY);
+
+      if (theme === 'light' && window.scrollY > 20 && isHomePage ){
+        setLogoSrc(logo1);
+      } else {
+        setLogoSrc(logo);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [theme]);
+
   return (
     <header className={`fixed w-full z-50 transition-all duration-300 ${
       isScrolled || isMobileMenuOpen ? 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-md' : 'bg-transparent'
     }`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
-          {/* Logo and Mobile Menu Toggler */}
           <div className="flex items-center space-x-4">
-            {/* Logo */}
             <img
-              src={logo}
+              src={logoSrc}
               alt="AI Agency Logo"
               className="w-40 h-30 transition-all duration-300 dark:text-gray-900 cursor-pointer"
-              onClick={() => navigate('/')} // Redirect to home on click
+              onClick={() => navigate('/')}
             />
           </div>
 
-          {/* Mobile Menu Toggler */}
           <button 
-            className="md:hidden" // Ensure this is visible only on mobile
+            className="md:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             <div className={`w-6 h-6 flex flex-col justify-around ${
@@ -81,7 +110,6 @@ const Header = () => {
             </div>
           </button>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             <nav className="flex items-center space-x-8">
               {navItems.map(({ label, href }) => (
@@ -89,14 +117,15 @@ const Header = () => {
                   key={label}
                   href={href}
                   className={`text-lg font-medium transition-colors duration-300 ${
-                    isScrolled || isMobileMenuOpen ? 'text-gray-800 dark:text-gray-300' : 'text-white dark:text-gray-300'
+                    (isScrolled || isMobileMenuOpen ? 'text-gray-800 dark:text-gray-300' : 'text-white dark:text-gray-300')
                   } hover:text-[#91be3f] dark:hover:text-[#91be3f]`}
                 >
                   {label}
                 </a>
               ))}
             </nav>
-            <ThemeToggle isScrolled={isScrolled} />
+            {/* Only show ThemeToggle on homepage */}
+            {isHomePage && <ThemeToggle isScrolled={isScrolled} />}
             {user ? (
               <div className="relative group">
                 <User className="w-8 h-8 text-[#91be3f] cursor-pointer" />
@@ -135,10 +164,11 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      <MobileMenu 
+        isOpen={isMobileMenuOpen} 
+        onClose={() => setIsMobileMenuOpen(false)}
+      />
 
-      {/* Auth Modal */}
       <AuthModal 
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
@@ -148,3 +178,4 @@ const Header = () => {
 };
 
 export default Header;
+

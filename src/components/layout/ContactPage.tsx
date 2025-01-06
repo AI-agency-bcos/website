@@ -1,8 +1,50 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Mail, Phone, Sparkles } from 'lucide-react';
 import TypewriterEffect from '../TypewriterEffect';
 
 const ContactPage = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: '',
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch('http://localhost:5000/send-message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        alert('Message sent successfully!');
+        setFormData({
+          name: '',
+          email: '',
+          message: '',
+        });
+      } else {
+        alert('Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Background Effects */}
@@ -53,7 +95,7 @@ const ContactPage = () => {
           {/* Contact Form */}
           <div className="bg-white/5 backdrop-blur-lg rounded-xl p-8 border border-gray-800">
             <h2 className="text-2xl font-bold mb-6">Send Us a Message</h2>
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-300">
                   Name
@@ -63,6 +105,8 @@ const ContactPage = () => {
                   id="name"
                   className="mt-1 block w-full bg-gray-700/50 border border-gray-600 rounded-md p-3 text-white focus:outline-none focus:ring-2 focus:ring-[#91be3f]"
                   placeholder="Your Name"
+                  value={formData.name}
+                  onChange={handleChange}
                 />
               </div>
               <div>
@@ -74,6 +118,8 @@ const ContactPage = () => {
                   id="email"
                   className="mt-1 block w-full bg-gray-700/50 border border-gray-600 rounded-md p-3 text-white focus:outline-none focus:ring-2 focus:ring-[#91be3f]"
                   placeholder="Your Email"
+                  value={formData.email}
+                  onChange={handleChange}
                 />
               </div>
               <div>
@@ -85,6 +131,8 @@ const ContactPage = () => {
                   rows={5}
                   className="mt-1 block w-full bg-gray-700/50 border border-gray-600 rounded-md p-3 text-white focus:outline-none focus:ring-2 focus:ring-[#91be3f]"
                   placeholder="Your Message"
+                  value={formData.message}
+                  onChange={handleChange}
                 />
               </div>
               <button

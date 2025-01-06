@@ -124,8 +124,8 @@ const Hero = () => {
           <Bot className="w-12 h-12 md:w-16 md:h-16 text-[#91be3f] animate-float" />
           
           <h1 className="text-3xl md:text-6xl font-bold font-montserrat bg-clip-text text-transparent bg-gradient-to-r from-[#91be3f] to-blue-500">
-            <TypewriterEffect text="Transforming Business Through AI Innovation" delay={50} />
-          </h1>
+  <TypewriterEffect text="Transforming Business Through AI Innovation" delay={50} />
+</h1>
           
           <p className="text-lg md:text-2xl max-w-2xl text-gray-300 font-opensans px-4">
             Empowering enterprises with cutting-edge AI solutions that drive growth, 
@@ -134,12 +134,12 @@ const Hero = () => {
 
           <button
             type="button"
-            onClick={user ? () => navigate('/services') : () => setIsAuthModalOpen(true)}
+            onClick={user ? () => navigate('/tools') : () => setIsAuthModalOpen(true)}
             className="group bg-[#91be3f] hover:bg-[#a1ce4f] text-white px-6 md:px-8 py-3 md:py-4 rounded-full 
               font-semibold transition-all duration-300 flex items-center space-x-2 
               hover:shadow-lg hover:shadow-[#91be3f]/25 active:scale-95"
           >
-            <span>{user ? 'Explore Services' : 'Get Started'}</span>
+            <span>{user ? 'Explore Tools' : 'Get Started'}</span>
             <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
           </button>
 
@@ -163,6 +163,14 @@ const Hero = () => {
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
 
       <style>{`
+      @keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.cursor {
+  animation: blink 1s infinite;
+}
         @keyframes fadeInSection {
           from { 
             opacity: 0;

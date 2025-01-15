@@ -25,20 +25,21 @@ const Hero = () => {
     response: 0
   });
 
-  // Grid configuration based on screen size
+  // Updated grid configuration for better mobile responsiveness
   const [gridConfig, setGridConfig] = useState({
     cols: 12,
-    rows: 12
+    rows: 12,
+    gap: '1px'
   });
 
   useEffect(() => {
     const updateGridConfig = () => {
       if (window.innerWidth < 640) { // sm breakpoint
-        setGridConfig({ cols: 6, rows: 24 });
+        setGridConfig({ cols: 6, rows: 8, gap: '2px' }); // Reduced grid density for mobile
       } else if (window.innerWidth < 1024) { // md breakpoint
-        setGridConfig({ cols: 8, rows: 16 });
+        setGridConfig({ cols: 8, rows: 10, gap: '1px' });
       } else {
-        setGridConfig({ cols: 12, rows: 12 });
+        setGridConfig({ cols: 12, rows: 12, gap: '1px' });
       }
     };
 
@@ -85,49 +86,35 @@ const Hero = () => {
     <div className="relative min-h-screen bg-gray-900 text-white overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-[#91be3f]/20 via-transparent to-blue-500/20" />
       
-      {/* Responsive grid container */}
-      <div className={`absolute inset-0 grid grid-cols-${gridConfig.cols} grid-rows-${gridConfig.rows}`}>
+      {/* Updated grid container with dynamic gap */}
+      <div 
+        className="absolute inset-0" 
+        style={{
+          display: 'grid',
+          gridTemplateColumns: `repeat(${gridConfig.cols}, 1fr)`,
+          gridTemplateRows: `repeat(${gridConfig.rows}, 1fr)`,
+          gap: gridConfig.gap
+        }}
+      >
         {[...Array(gridConfig.cols * gridConfig.rows)].map((_, i) => (
           <GridSection 
             key={i}
             delay={Math.random() * 2}
-            className="animate-pulse-subtle" children={undefined}          />
-        ))}
-        
-        {/* Responsive vertical lines */}
-        {[...Array(Math.max(3, Math.floor(gridConfig.cols / 2)))].map((_, i) => (
-          <div
-            key={`vline-${i}`}
-            className="absolute h-full w-px bg-gradient-to-b from-transparent via-[#91be3f]/40 to-transparent animate-slide-down"
-            style={{
-              left: `${(100 / (Math.floor(gridConfig.cols / 2) + 1)) * (i + 1)}%`,
-              animationDelay: `${i * 1.5}s`
-            }}
-          />
-        ))}
-        
-        {/* Responsive horizontal lines */}
-        {[...Array(Math.max(3, Math.floor(gridConfig.rows / 2)))].map((_, i) => (
-          <div
-            key={`hline-${i}`}
-            className="absolute w-full h-px bg-gradient-to-r from-transparent via-[#91be3f]/40 to-transparent animate-slide-right"
-            style={{
-              top: `${(100 / (Math.floor(gridConfig.rows / 2) + 1)) * (i + 1)}%`,
-              animationDelay: `${i * 1.5}s`
-            }}
+            className="animate-pulse-subtle"
           />
         ))}
       </div>
 
-      <div className="relative container mx-auto px-4 py-12 md:py-20 flex min-h-screen items-center justify-center z-10">
-        <div className="flex flex-col items-center text-center space-y-6 md:space-y-8 max-w-4xl">
-          <Bot className="w-12 h-12 md:w-16 md:h-16 text-[#91be3f] animate-float" />
+      {/* Updated responsive content container */}
+      <div className="relative container mx-auto px-4 py-8 sm:py-12 md:py-20 flex min-h-screen items-center justify-center z-10">
+        <div className="flex flex-col items-center text-center space-y-4 sm:space-y-6 md:space-y-8 max-w-4xl">
+          <Bot className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 text-[#91be3f] animate-float" />
           
-          <h1 className="text-3xl md:text-6xl font-bold font-montserrat bg-clip-text text-transparent bg-gradient-to-r from-[#91be3f] to-blue-500">
-  <TypewriterEffect text="Transforming Business Through AI Innovation" delay={50} />
-</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-6xl font-bold font-montserrat bg-clip-text text-transparent bg-gradient-to-r from-[#91be3f] to-blue-500">
+            <TypewriterEffect text="Transforming Business Through AI Innovation" delay={50} />
+          </h1>
           
-          <p className="text-lg md:text-2xl max-w-2xl text-gray-300 font-opensans px-4">
+          <p className="text-base sm:text-lg md:text-2xl max-w-2xl text-gray-300 font-opensans px-2 sm:px-4">
             Empowering enterprises with cutting-edge AI solutions that drive growth, 
             efficiency, and innovation.
           </p>
@@ -135,7 +122,7 @@ const Hero = () => {
           <button
             type="button"
             onClick={user ? () => navigate('/tools') : () => setIsAuthModalOpen(true)}
-            className="group bg-[#91be3f] hover:bg-[#a1ce4f] text-white px-6 md:px-8 py-3 md:py-4 rounded-full 
+            className="group bg-[#91be3f] hover:bg-[#a1ce4f] text-white px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 rounded-full 
               font-semibold transition-all duration-300 flex items-center space-x-2 
               hover:shadow-lg hover:shadow-[#91be3f]/25 active:scale-95"
           >
@@ -143,17 +130,18 @@ const Hero = () => {
             <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
           </button>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mt-8 md:mt-16 w-full px-4">
+          {/* Updated metrics grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-8 mt-6 sm:mt-8 md:mt-16 w-full px-2 sm:px-4">
             {metrics.map(({ icon: Icon, label, value }) => (
               <div
                 key={label}
-                className="bg-white/5 backdrop-blur-lg rounded-xl p-4 md:p-6 
+                className="bg-white/5 backdrop-blur-lg rounded-xl p-3 sm:p-4 md:p-6 
                   transform hover:scale-105 transition-all duration-300
                   hover:shadow-xl hover:shadow-[#91be3f]/10 border border-gray-800"
               >
-                <Icon className="w-6 h-6 md:w-8 md:h-8 text-[#91be3f] mx-auto" />
-                <h3 className="text-2xl md:text-3xl font-bold mt-3 md:mt-4">{value}</h3>
-                <p className="text-sm md:text-base text-gray-400">{label}</p>
+                <Icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-[#91be3f] mx-auto" />
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mt-2 sm:mt-3 md:mt-4">{value}</h3>
+                <p className="text-xs sm:text-sm md:text-base text-gray-400">{label}</p>
               </div>
             ))}
           </div>
@@ -163,14 +151,15 @@ const Hero = () => {
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
 
       <style>{`
-      @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
 
-.cursor {
-  animation: blink 1s infinite;
-}
+        .cursor {
+          animation: blink 1s infinite;
+        }
+
         @keyframes fadeInSection {
           from { 
             opacity: 0;

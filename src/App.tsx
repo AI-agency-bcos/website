@@ -8,18 +8,18 @@ import Header from './components/layout/Header/Header';
 import Hero from './components/Hero';
 import Features from './components/Features';
 import ToolsAndBlog from './components/section2';
+import BookingSection from './components/BookingSection';
 import FooterSection from './components/layout/Footer/FooterSection';
 import AuthModal from './components/auth/AuthModal';
 import LoadingScreen from './components/LoadingScreen';
-
+import { CreditProvider } from './contexts/creditsContext';
+import ChatBot from './components/chatbot';
 // Lazy load pages for code splitting
 const ToolsPage = React.lazy(() => import('./components/tools/ToolsPage'));
 const BlogPage = React.lazy(() => import('./components/blog/blogPage'));
 const ContactPage = React.lazy(() => import('./components/layout/ContactPage'));
 
-import { ReactNode } from 'react';
-
-const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
 
   if (loading) return <LoadingScreen />;
@@ -34,6 +34,7 @@ const HomePage = () => (
     <Hero />
     <Features />
     <ToolsAndBlog />
+    <BookingSection />
   </>
 );
 
@@ -44,45 +45,48 @@ function App() {
     <ThemeProvider>
       <Router>
         <AuthProvider>
-          <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
-            <Header />
-            <Suspense fallback={<LoadingScreen />}>
-              <Routes>
-                <Route path="/" element={<LoadingWrapper><HomePage /></LoadingWrapper>} />
-                <Route path="/tools" element={<LoadingWrapper><ToolsPage /></LoadingWrapper>} />
-                <Route path="/blog" element={<LoadingWrapper><BlogPage /></LoadingWrapper>} />
-                <Route path="/contact" element={<LoadingWrapper><ContactPage /></LoadingWrapper>} />
-                <Route
-                  path="/register"
-                  element={
-                    <LoadingWrapper>
-                      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
-                      <div className="flex justify-center mt-8">
-                        <button
-                          onClick={() => setAuthModalOpen(true)}
-                          className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700"
-                        >
-                          Open Registration
-                        </button>
-                      </div>
-                    </LoadingWrapper>
-                  }
-                />
-                <Route
-                  path="/protected"
-                  element={
-                    <ProtectedRoute>
+          <CreditProvider>
+            <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+              <Header />
+              <Suspense fallback={<LoadingScreen />}>
+                <Routes>
+                  <Route path="/" element={<LoadingWrapper><HomePage /></LoadingWrapper>} />
+                  <Route path="/tools" element={<LoadingWrapper><ToolsPage /></LoadingWrapper>} />
+                  <Route path="/blog" element={<LoadingWrapper><BlogPage /></LoadingWrapper>} />
+                  <Route path="/contact" element={<LoadingWrapper><ContactPage /></LoadingWrapper>} />
+                  <Route
+                    path="/register"
+                    element={
                       <LoadingWrapper>
-                        <div>Protected Content</div>
+                        <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+                        <div className="flex justify-center mt-8">
+                          <button
+                            onClick={() => setAuthModalOpen(true)}
+                            className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700"
+                          >
+                            Open Registration
+                          </button>
+                        </div>
                       </LoadingWrapper>
-                    </ProtectedRoute>
-                  }
-                />
-              </Routes>
-            </Suspense>
-            <FooterSection />
-            <Toaster position="top-right" />
-          </div>
+                    }
+                  />
+                  <Route
+                    path="/protected"
+                    element={
+                      <ProtectedRoute>
+                        <LoadingWrapper>
+                          <div>Protected Content</div>
+                        </LoadingWrapper>
+                      </ProtectedRoute>
+                    }
+                  />
+                </Routes>
+              </Suspense>
+              <FooterSection />
+              <Toaster position="top-right" />
+            </div>
+            <ChatBot />
+          </CreditProvider>
         </AuthProvider>
       </Router>
     </ThemeProvider>

@@ -1,41 +1,41 @@
 import React from 'react';
-import { Brain, Cpu, Lock, Globe, Gauge, Users, ArrowRight } from 'lucide-react';
+import { MessageSquare, Bot, Zap, Shield, BarChart, HeadphonesIcon, ArrowRight } from 'lucide-react';
 
 const features = [
   {
-    icon: Brain,
-    title: 'Advanced ML Models',
-    description: 'Custom-built machine learning models tailored to your business needs',
-    link: '/ml-models'
+    icon: MessageSquare,
+    title: 'Custom Chatbots',
+    description: 'Tailor-made conversational AI solutions designed specifically for your business needs and brand voice',
+    link: '/custom-chatbots'
   },
   {
-    icon: Cpu,
-    title: 'Process Automation',
-    description: 'Streamline operations with intelligent automation solutions',
-    link: '/automation'
+    icon: Bot,
+    title: 'AI Assistants',
+    description: 'Intelligent virtual assistants that can handle customer inquiries, schedule appointments, and process requests',
+    link: '/ai-assistants'
   },
   {
-    icon: Lock,
-    title: 'Secure Integration',
-    description: 'Enterprise-grade security with seamless system integration',
+    icon: Zap,
+    title: 'Quick Integration',
+    description: 'Seamless integration with your existing platforms - website, mobile apps, and messaging channels',
+    link: '/integration'
+  },
+  {
+    icon: Shield,
+    title: 'Privacy First',
+    description: 'Enterprise-grade security and data protection for all your conversational AI implementations',
     link: '/security'
   },
   {
-    icon: Globe,
-    title: 'Global Scalability',
-    description: 'Solutions that scale across markets and regions',
-    link: '/scalability'
-  },
-  {
-    icon: Gauge,
-    title: 'Real-time Analytics',
-    description: 'Instant insights and predictive analytics capabilities',
+    icon: BarChart,
+    title: 'Conversation Analytics',
+    description: 'Detailed insights into user interactions, sentiment analysis, and conversation performance metrics',
     link: '/analytics'
   },
   {
-    icon: Users,
-    title: 'Expert Support',
-    description: '24/7 dedicated support from AI specialists',
+    icon: HeadphonesIcon,
+    title: 'Training & Support',
+    description: 'Comprehensive training for your team and 24/7 technical support for your AI solutions',
     link: '/support'
   }
 ];
@@ -52,14 +52,14 @@ const Features = () => {
           <div className="inline-block">
             <h2 className="text-5xl font-bold text-[#253b74] dark:text-white font-montserrat mb-4 
               tracking-tight animate-fade-in">
-              Transformative AI Solutions
+              AI-Powered Chatbot Solutions
             </h2>
             <div className="h-1 w-full bg-gradient-to-r from-[#253b74] via-[#91be3f] to-[#253b74] 
               rounded-full animate-gradient-x" />
           </div>
           <p className="mt-6 text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto 
             font-opensans leading-relaxed animate-fade-in-up">
-            Empower your business with cutting-edge AI technology that drives innovation and growth
+            Enhance your customer experience with intelligent conversational AI that understands, learns, and delivers results
           </p>
         </div>
 

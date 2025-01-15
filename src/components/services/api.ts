@@ -1,56 +1,90 @@
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
+import { AuthResponse } from '../../contexts/AuthContext';
 
-const API_URL = 'http://localhost:4000/api';
+const API_URL =  'http://localhost:4000/api';
 
+// Create axios instance with default config
+const axiosInstance: AxiosInstance = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true, // Make sure this is true
+});
+
+axiosInstance.interceptors.response.use(
+  response => response,
+  error => {
+    console.error('API Error:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      data: error.response?.data
+    });
+    return Promise.reject(error);
+  }
+);
 export const authService = {
-  async login(email: string, password: string) {
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to login');
-    }
-
-    return response.json();
+  setAuthToken: (token: string) => {
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   },
 
-  async register(email: string, password: string) {
-    const response = await fetch(`${API_URL}/auth/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to register');
-    }
-
-    return response.json();
+  removeAuthToken: () => {
+    delete axiosInstance.defaults.headers.common['Authorization'];
   },
 
-  async getCurrentUser(token: string) {
-    const response = await fetch(`${API_URL}/auth/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to get user data');
-    }
-
-    return response.json();
+  setupAuthInterceptor: (onUnauthorized: () => void) => {
+    const interceptor = axiosInstance.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          onUnauthorized();
+        }
+        return Promise.reject(error);
+      }
+    );
+    return interceptor;
   },
+
+  removeAuthInterceptor: (interceptor: number) => {
+    axiosInstance.interceptors.response.eject(interceptor);
+  },
+
+  async login(email: string, password: string): Promise<AuthResponse> {
+    const response = await axiosInstance.post<AuthResponse>('/auth/login', { 
+      email, 
+      password 
+    });
+    return response.data;
+  },
+
+  async register(email: string, password: string): Promise<AuthResponse> {
+    console.log('authService: Starting registration process');
+    try {
+      const response = await axiosInstance.post<AuthResponse>('/auth/register', { 
+        email, 
+        password 
+      });
+      console.log('authService: Registration successful:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('authService: Registration failed:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+  async verifyToken() {
+    try {
+      console.log('authService: Verifying token...');
+      const response = await axiosInstance.get('/auth/me');  // Use axiosInstance instead of axios
+      console.log('authService: Token verification response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('authService: Token verification failed:', error);
+      throw error;
+    }
+  },
+
 
   async requestPasswordReset(email: string) {
     const response = await fetch(`${API_URL}/auth/reset-password`, {

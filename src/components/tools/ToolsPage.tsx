@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import { Bot, Sparkles, ArrowRight, MessageSquare, Pen, Lock, Youtube, Clock, Zap, Users } from 'lucide-react';
+import { Bot, Sparkles, ArrowRight,Pen, Lock, Youtube, Clock, Zap, Users } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import AuthModal from '../auth/AuthModal';
 import BlogGenerator from './BlogGenerator';
+import SEOAudit from './SEOAudit';
+import YouTubeSummarizer from './YouTubeSummarizer';
+
 
 interface Tool {
   id: string;
@@ -59,7 +62,27 @@ const tools: Tool[] = [
       avgTime: '2 mins',
       accuracy: '92%',
     },
-    component: BlogGenerator, // Replace with actual YouTube summarizer component
+    component: YouTubeSummarizer, // Use the new YouTubeSummarizer component
+  },
+  {
+    id: 'seo-audit',
+    name: 'SEO Audit Tool',
+    description: 'Analyze and optimize your website for search engines. Get actionable insights to improve your SEO performance and rankings.',
+    category: 'SEO',
+    icon: Zap,
+    isPremium: true,
+    features: [
+      'Website health analysis',
+      'Keyword performance tracking',
+      'Backlink analysis',
+      'Page speed optimization',
+    ],
+    stats: {
+      users: 12000,
+      avgTime: '10 mins',
+      accuracy: '98%',
+    },
+    component: SEOAudit, // Use the new SEOAudit component
   },
 ];
 

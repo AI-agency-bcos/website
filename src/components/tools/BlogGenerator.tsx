@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Send, Loader2, Tag } from 'lucide-react';
+import { useCredits } from '../../contexts/creditsContext';
 
 interface BlogGeneratorResponse {
-  title: string;
+  title: string;    
   content: string;
   excerpt: string;
   tags: string[];
@@ -26,33 +27,41 @@ const BlogGenerator = () => {
   const [generatedBlog, setGeneratedBlog] = useState<BlogGeneratorResponse | null>(null);
   const API_URL = 'http://localhost:4000/api';
   
+  const { updateCredits } = useCredits();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
-
+  
     try {
+      const token = localStorage.getItem('token'); // Get the token from localStorage
       const response = await fetch(`${API_URL}/generate-blog`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`, // Include the token here
         },
         body: JSON.stringify(formData),
       });
-
+  
       // First check if the response is JSON
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
         throw new Error('Server returned non-JSON response');
       }
-
+  
       const data = await response.json();
-
+  
+      // Update credits if available in the response data 
+      if (data.creditInfo?.remainingCredits !== undefined) {
+        updateCredits(data.creditInfo.remainingCredits);
+      }
       if (!response.ok) {
         throw new Error(data.message || 'Failed to generate blog content');
       }
-
+  
       setGeneratedBlog(data);
     } catch (err) {
       if (err instanceof Error) {

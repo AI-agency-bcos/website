@@ -12,3 +12,34 @@
   display: block;
   opacity: 1;
 }
+@keyframes toast-slide-in {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: toast-slide-in 0.5s ease-out forwards;
+}
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: #0b1632; /* Transparent track */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #91be3f; /* Green color for the scrollbar thumb */
+  border-radius: 4px; /* Rounded corners */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1ce4f; /* Lighter green on hover */
+}

@@ -3,16 +3,35 @@ import { X, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { authService } from '../services/api';
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
+import { useLocation, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { Check } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+
+interface ToastNotificationProps {
+  message: string;
+}
+
+const ToastNotification: React.FC<ToastNotificationProps> = ({ message }) => {
+  return (
+    <div className="flex items-center gap-2 min-w-[200px] p-4 bg-white rounded-lg shadow-lg border border-green-100 animate-slide-in">
+      <div className="flex items-center justify-center w-6 h-6 bg-green-100 rounded-full">
+        <Check className="w-4 h-4 text-green-600" />
+      </div>
+      <p className="text-sm font-medium text-gray-900">{message}</p>
+    </div>
+  );
+};
+
 type ModalView = 'login' | 'register' | 'forgotPassword' | 'verifyCode' | 'resetPassword';
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, setUser } = useAuth();
   const [view, setView] = useState<ModalView>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,21 +41,36 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [error, setError] = useState<string | null>(null);
   const [verificationCode, setVerificationCode] = useState('');
   const [resetSuccess, setResetSuccess] = useState(false);
+  const [passwordError, setPasswordError] = useState<string>('');
+  const [isValidPassword, setIsValidPassword] = useState(false);
 
+  const location = useLocation(); // Call useLocation at the top level
+  const navigate = useNavigate(); // Call useNavigate at the top level
+ 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     try {
-      if (view === 'login') {
-        await signIn(email, password);
-        onClose();
-      } else if (view === 'register') {
+      if (view === 'register') {
+        if (password.length < 6) {
+          throw new Error('Password must be at least 6 characters long');
+        }
+
+        console.log('AuthModal: Starting registration process');
         await signUp(email, password);
+        console.log('AuthModal: Registration successful');
+        
+        setEmail('');
+        setPassword('');
+        onClose();
+      } else if (view === 'login') {
+        await signIn(email, password);
         onClose();
       }
     } catch (err: any) {
+      console.error('AuthModal: Form submission error:', err);
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
@@ -99,51 +133,65 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setError(null);
   };
 
+  const validatePassword = (password: string) => {
+    if (password.length < 6) {
+      setPasswordError('Password must be at least 6 characters long');
+      setIsValidPassword(false);
+    } else {
+      setPasswordError('');
+      setIsValidPassword(true);
+    }
+  };
+
   if (!isOpen) return null;
   const API_URL = 'http://localhost:4000/api';
   const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     setError(null);
     setLoading(true);
-    
+
     try {
       const token = credentialResponse.credential;
       if (!token) throw new Error('No Google token received');
-  
-      // Debug log to see the token
+
       console.log('Google credential token:', token);
-  
+
       const response = await fetch(`${API_URL}/auth/google`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
         },
         body: JSON.stringify({ token }),
-        credentials: 'include' // Include cookies if your backend uses them
+        credentials: 'include',
       });
-  
-      // Debug log to see the response status
+
       console.log('Response status:', response.status);
-  
-      // Get the raw response text first for debugging
+
       const responseText = await response.text();
       console.log('Raw response:', responseText);
-  
-      // Parse the response as JSON
+
       const data = JSON.parse(responseText);
       console.log('Parsed response:', data);
-  
+
       if (!response.ok) {
         throw new Error(data.message || 'Failed to authenticate with Google');
       }
-  
+
       if (!data.success) {
         throw new Error(data.message || 'Authentication failed');
       }
-  
-      // Use the JWT token and user data from response
-      await signIn(data.data.user.email, data.data.token);
-      
+      toast.custom(() => <ToastNotification message="Successfully logged in!" />, {
+        duration: 2000,
+        position: 'top-right',
+      });
+
+      // Handle successful authentication
+      const { token: authToken, user } = data.data;
+
+      localStorage.setItem('token', authToken);
+
+      setUser(user); // Use setUser from the top-level useAuth call
+
       onClose();
     } catch (error: any) {
       console.error('Detailed Google authentication error:', error);
@@ -152,6 +200,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       setLoading(false);
     }
   };
+
 const handleGoogleError = () => {
   console.error('Google sign-in failed');
 };
@@ -199,27 +248,28 @@ const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme
                   required
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#91be3f] dark:bg-gray-700 dark:text-white outline-none"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-              </div>
+                      <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={(e) => {
+                          setPassword(e.target.value);
+                          validatePassword(e.target.value);
+                        }}
+                        className={`w-full px-4 py-2 border ${
+                          passwordError ? 'border-red-500' : 'border-gray-300'
+                        } dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#91be3f] dark:bg-gray-700 dark:text-white outline-none`}
+                        required
+                      />
+                      {view === 'register' && passwordError && (
+                        <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+                      )}
+                    </div>
+                  </div>
 
               {error && <p className="text-red-500 text-sm">{error}</p>}
 
@@ -409,6 +459,3 @@ const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme
 
 export default AuthModal;
 
-function signInWithGoogle(credential: string | undefined) {
-  throw new Error('Function not implemented.');
-}
